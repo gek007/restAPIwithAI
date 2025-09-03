@@ -9,7 +9,7 @@
     "dev": "node --watch app.js"
   },
   "keywords": [],
-  "author": "Kostya",
+  "author": "Kostya Shilkrot",
   "license": "ISC",
   "dependencies": {
     "express": "^5.1.0",

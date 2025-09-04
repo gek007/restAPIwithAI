@@ -1,5 +1,7 @@
 import express from 'express';
 import userRoutes from './routes/user-routes.js';
+import eventRouter from './routes/events-routes.js';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import './database.js';
@@ -13,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/users', userRoutes);
+app.use('/events', eventRouter);
 
 // Root route
 app.get('/', (req, res) => {

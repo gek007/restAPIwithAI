@@ -6,6 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dbPath = path.join(__dirname, 'data.db');
 
+
 const sqlite = sqlite3.verbose();
 const db = new sqlite.Database(dbPath, (err) => {
   if (err) {
@@ -28,6 +29,23 @@ db.serialize(() => {
     }
   });
 });
+
+// Event table creation
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    address TEXT NOT NULL,
+    date TEXT NOT NULL,
+    createdAt TEXT NOT NULL
+  )`, (err) => {
+    if (!err) {
+      console.log('Created events table');
+    }
+  });
+});
+
 
 const db_runAsync = (sql, params = []) => new Promise((resolve, reject) => {
   db.run(sql, params, function (err) {

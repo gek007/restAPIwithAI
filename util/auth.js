@@ -31,3 +31,48 @@ export function verifyJWT(token) {
     return null;
   }
 }
+
+/**
+ * Express middleware to extract and validate the JWT token from the Authorization header.
+ * If a valid Bearer token is found and verified, attaches the decoded payload to req.user.
+ * If the token is missing or invalid, responds with 401 Unauthorized.
+ * @param {object} req - The Express request object.
+ * @param {object} res - The Express response object.
+ * @param {function} next - The next middleware function.
+ */
+export function extractTokenFromHeader(req, res, next) {
+  let token = null;
+  if (
+    req &&
+    req.headers &&
+    req.headers.authorization &&
+    typeof req.headers.authorization === 'string'
+  ) {
+    const authHeader = req.headers.authorization;
+    // Expecting format: "Bearer <token>"
+    const parts = authHeader.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      token = parts[1];
+    }
+  }
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authorization token missing or malformed'
+    });
+  }
+
+  const decoded = verifyJWT(token);
+  if (!decoded) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid or expired authorization token'
+    });
+  }
+  req.user = decoded;
+  next();
+}
+
+
+

@@ -7,11 +7,13 @@ import {
   validateUser 
 } from '../models/User.js';
 
+
+
 // User signup
 import { generateJWT } from '../util/auth.js';
 import { verifyUserCredentials } from '../models/User.js';
 
-const signup = async (req, res) => {
+const signupController = async (req, res) => {
   console.log('🚀 signup function called');
   console.log('📝 Request body:', req.body);
   
@@ -74,7 +76,7 @@ const signup = async (req, res) => {
 };
 
 // User login
-const login = async (req, res) => {
+const loginController = async (req, res) => {
   console.log('🔑 login function called');
   console.log('📝 Request body:', req.body);
 
@@ -133,7 +135,7 @@ const login = async (req, res) => {
 };
 
 // Get all users
-const getAllUsers = async (req, res) => {
+const getAllUsersController = async (req, res) => {
   console.log('📋 getAllUsers function called');
   try {
     const users = await findAllUsers();
@@ -162,7 +164,7 @@ const getAllUsers = async (req, res) => {
 };
 
 // Get user by ID
-const getUserById = async (req, res) => {
+const getUserByIdController = async (req, res) => {
   console.log('🔍 getUserById function called with ID:', req.params.id);
   try {
     const { id } = req.params;
@@ -196,8 +198,8 @@ const getUserById = async (req, res) => {
 };
 
 export {
-  signup,
-  login,
-  getAllUsers,
-  getUserById
+  signupController,
+  loginController,
+  getAllUsersController,
+  getUserByIdController
 };

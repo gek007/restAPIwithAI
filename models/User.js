@@ -1,16 +1,50 @@
 import { db_runAsync, db_getAsync, db_allAsync } from '../database.js';
 
+import bcrypt from 'bcryptjs';
+
 const createUser = async (userData) => {
   console.log('🔧 createUser called with:', { name: userData.name, email: userData.email });
   const createdAt = new Date().toISOString();
+
+  // Hash the password before storing
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+
   const result = await db_runAsync(
     `INSERT INTO users (name, email, password, createdAt) VALUES (?, ?, ?, ?)`,
-    [userData.name, userData.email, userData.password, createdAt]
+    [userData.name, userData.email, hashedPassword, createdAt]
   );
   const user = await findUserById(result.lastID);
   console.log('✅ User created successfully with ID:', user.id);
   return user;
 };
+
+
+/**
+ * Verifies user credentials by email and password.
+ * @param {string} email - The user's email address.
+ * @param {string} plainPassword - The plain text password to check.
+ * @returns {Promise<object|null>} - Returns the user object (without password) if credentials are valid, otherwise null.
+ */
+export async function verifyUserCredentials(email, plainPassword) {
+  console.log('🔑 verifyCredentials called with:', { email });
+  const user = await findUserByEmail(email);
+  if (!user || !user.password) {
+    console.log('❌ User not found or missing password for email:', email);
+    return null;
+  }
+  const isMatch = await bcrypt.compare(plainPassword, user.password);
+  console.log('🔍 Password match result:', isMatch);
+  if (!isMatch) {
+    console.log('❌ Invalid password for email:', email);
+    return null;
+  }
+  // Exclude password from returned user object
+  const { password, ...userWithoutPassword } = user;
+  console.log('✅ Credentials verified for user ID:', user.id);
+  return userWithoutPassword;
+};
+
 
 const findUserByEmail = async (email) => {
   console.log('🔍 findUserByEmail called with email:', email);

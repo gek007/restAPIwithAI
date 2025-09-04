@@ -8,6 +8,9 @@ import {
 } from '../models/User.js';
 
 // User signup
+import { generateJWT } from '../util/auth.js';
+import { verifyUserCredentials } from '../models/User.js';
+
 const signup = async (req, res) => {
   console.log('🚀 signup function called');
   console.log('📝 Request body:', req.body);
@@ -25,7 +28,7 @@ const signup = async (req, res) => {
     const { name, email, password } = req.body;
 
     // Validate input data
-    const validationErrors = validateUser({ name, email, password });
+    const validationErrors = await validateUser({ name, email, password });
     if (validationErrors.length > 0) {
       console.log('❌ Validation failed:', validationErrors);
       return res.status(400).json({
@@ -49,12 +52,16 @@ const signup = async (req, res) => {
 
     // Return user data (without password)
     const { password: _, ...userWithoutPassword } = newUser;
-    
+
+    // Generate JWT
+    const token = generateJWT(userWithoutPassword);
+
     console.log('✅ Signup successful for user:', userWithoutPassword.id);
     res.status(201).json({
       success: true,
       message: 'User created successfully',
-      user: userWithoutPassword
+      user: userWithoutPassword,
+      token
     });
 
   } catch (error) {
@@ -70,7 +77,7 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   console.log('🔑 login function called');
   console.log('📝 Request body:', req.body);
-  
+
   // Check if request body exists
   if (!req.body) {
     console.log('❌ No request body provided');
@@ -79,7 +86,7 @@ const login = async (req, res) => {
       message: 'Request body is required'
     });
   }
-  
+
   try {
     const { email, password } = req.body;
 
@@ -92,33 +99,28 @@ const login = async (req, res) => {
       });
     }
 
-    // Find user by email
-    const user = await findUserByEmail(email);
+    // Check credentials using verifyUserCredentials
+    const user = await verifyUserCredentials(email, password);
+
+    // If credentials are invalid, respond accordingly
     if (!user) {
-      console.log('❌ User not found for email:', email);
+      console.log('❌ Invalid credentials for email:', email);
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
       });
     }
 
-    // Check password (simple comparison for now)
-    if (user.password !== password) {
-      console.log('❌ Invalid password for user:', user.id);
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
-    }
+    // Generate JWT
+    const token = generateJWT(user);
 
-    // Return user data (without password)
-    const { password: _, ...userWithoutPassword } = user;
-    
-    console.log('✅ Login successful for user:', userWithoutPassword.id);
+    // Credentials valid, return user data (without password) and token
+    console.log('✅ Login successful for user:', user.id);
     res.status(200).json({
       success: true,
       message: 'Login successful',
-      user: userWithoutPassword
+      user,
+      token
     });
 
   } catch (error) {

@@ -41,18 +41,32 @@ const emailExists = async (email) => {
   return exists;
 };
 
-const validateUser = (userData) => {
+const validateUser = async (userData) => {
   console.log('✅ validateUser called with:', { name: userData.name, email: userData.email });
   const errors = [];
+
+  // Name validation
   if (!userData.name || userData.name.trim().length < 2) {
     errors.push('Name must be at least 2 characters long');
   }
-  if (!userData.email || !userData.email.includes('@')) {
+
+  // Email validation (format)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!userData.email || !emailRegex.test(userData.email)) {
     errors.push('Valid email is required');
+  } else {
+    // Email uniqueness check
+    const exists = await emailExists(userData.email);
+    if (exists) {
+      errors.push('Email already exists');
+    }
   }
+
+  // Password validation
   if (!userData.password || userData.password.length < 6) {
     errors.push('Password must be at least 6 characters long');
   }
+
   console.log('✅ Validation result:', errors.length > 0 ? errors : 'Valid');
   return errors;
 };

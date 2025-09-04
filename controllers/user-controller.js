@@ -8,7 +8,7 @@ import {
 } from '../models/User.js';
 
 // User signup
-const signup = (req, res) => {
+const signup = async (req, res) => {
   console.log('🚀 signup function called');
   console.log('📝 Request body:', req.body);
   
@@ -36,7 +36,7 @@ const signup = (req, res) => {
     }
 
     // Check if email already exists
-    if (emailExists(email)) {
+    if (await emailExists(email)) {
       console.log('❌ Email already exists:', email);
       return res.status(409).json({
         success: false,
@@ -45,7 +45,7 @@ const signup = (req, res) => {
     }
 
     // Create new user
-    const newUser = createUser({ name, email, password });
+    const newUser = await createUser({ name, email, password });
 
     // Return user data (without password)
     const { password: _, ...userWithoutPassword } = newUser;
@@ -67,7 +67,7 @@ const signup = (req, res) => {
 };
 
 // User login
-const login = (req, res) => {
+const login = async (req, res) => {
   console.log('🔑 login function called');
   console.log('📝 Request body:', req.body);
   
@@ -93,7 +93,7 @@ const login = (req, res) => {
     }
 
     // Find user by email
-    const user = findUserByEmail(email);
+    const user = await findUserByEmail(email);
     if (!user) {
       console.log('❌ User not found for email:', email);
       return res.status(401).json({
@@ -131,10 +131,10 @@ const login = (req, res) => {
 };
 
 // Get all users
-const getAllUsers = (req, res) => {
+const getAllUsers = async (req, res) => {
   console.log('📋 getAllUsers function called');
   try {
-    const users = findAllUsers();
+    const users = await findAllUsers();
     
     // Remove passwords from response
     const usersWithoutPasswords = users.map(user => {
@@ -160,11 +160,11 @@ const getAllUsers = (req, res) => {
 };
 
 // Get user by ID
-const getUserById = (req, res) => {
+const getUserById = async (req, res) => {
   console.log('🔍 getUserById function called with ID:', req.params.id);
   try {
     const { id } = req.params;
-    const user = findUserById(parseInt(id));
+    const user = await findUserById(parseInt(id));
 
     if (!user) {
       console.log('❌ User not found with ID:', id);

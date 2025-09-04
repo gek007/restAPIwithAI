@@ -51,7 +51,7 @@ async function testAPI() {
     console.log('4. Testing get all users...');
     const usersResponse = await fetch(`${BASE_URL}/users`);
     const usersData = await usersResponse.json();
-    console.log('✅ Users response:', usersData);
+    console.log('✅ Users response:', usersData);git 
     console.log('');
 
     // Test 5: Get user by ID

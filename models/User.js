@@ -1,70 +1,58 @@
-// User model - basic structure without database integration
-const users = []; // In-memory storage for now
+import { db_runAsync, db_getAsync, db_allAsync } from '../database.js';
 
-// Create a new user
-const createUser = (userData) => {
+const createUser = async (userData) => {
   console.log('🔧 createUser called with:', { name: userData.name, email: userData.email });
-  
-  const newUser = {
-    id: users.length + 1,
-    name: userData.name,
-    email: userData.email,
-    password: userData.password,
-    createdAt: new Date().toISOString()
-  };
-  
-  users.push(newUser);
-  console.log('✅ User created successfully with ID:', newUser.id);
-  return newUser;
+  const createdAt = new Date().toISOString();
+  const result = await db_runAsync(
+    `INSERT INTO users (name, email, password, createdAt) VALUES (?, ?, ?, ?)`,
+    [userData.name, userData.email, userData.password, createdAt]
+  );
+  const user = await findUserById(result.lastID);
+  console.log('✅ User created successfully with ID:', user.id);
+  return user;
 };
 
-// Find user by email
-const findUserByEmail = (email) => {
+const findUserByEmail = async (email) => {
   console.log('🔍 findUserByEmail called with email:', email);
-  const user = users.find(user => user.email === email);
-  console.log('🔍 User found:', user ? `ID ${user.id}` : 'Not found');
-  return user;
+  const row = await db_getAsync(`SELECT * FROM users WHERE email = ?`, [email]);
+  console.log('🔍 User found:', row ? `ID ${row.id}` : 'Not found');
+  return row || null;
 };
 
-// Find user by ID
-const findUserById = (id) => {
+const findUserById = async (id) => {
   console.log('🔍 findUserById called with ID:', id);
-  const user = users.find(user => user.id === id);
-  console.log('🔍 User found:', user ? `Email ${user.email}` : 'Not found');
-  return user;
+  const row = await db_getAsync(`SELECT * FROM users WHERE id = ?`, [id]);
+  console.log('🔍 User found:', row ? `Email ${row.email}` : 'Not found');
+  return row || null;
 };
 
-// Get all users
-const findAllUsers = () => {
-  console.log('📋 findAllUsers called, returning', users.length, 'users');
-  return users;
+const findAllUsers = async () => {
+  console.log('📋 findAllUsers called');
+  const rows = await db_allAsync(`SELECT id, name, email, password, createdAt FROM users ORDER BY id ASC`);
+  console.log('📋 Returning', rows.length, 'users');
+  return rows;
 };
 
-// Check if email already exists
-const emailExists = (email) => {
+const emailExists = async (email) => {
   console.log('📧 emailExists called with email:', email);
-  const exists = users.some(user => user.email === email);
+  const row = await db_getAsync(`SELECT 1 FROM users WHERE email = ?`, [email]);
+  const exists = !!row;
   console.log('📧 Email exists:', exists);
   return exists;
 };
 
-// Validate user data
 const validateUser = (userData) => {
   console.log('✅ validateUser called with:', { name: userData.name, email: userData.email });
   const errors = [];
-  
   if (!userData.name || userData.name.trim().length < 2) {
     errors.push('Name must be at least 2 characters long');
   }
-  
   if (!userData.email || !userData.email.includes('@')) {
     errors.push('Valid email is required');
   }
-  
   if (!userData.password || userData.password.length < 6) {
     errors.push('Password must be at least 6 characters long');
   }
-  
   console.log('✅ Validation result:', errors.length > 0 ? errors : 'Valid');
   return errors;
 };

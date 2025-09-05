@@ -1,10 +1,14 @@
 {
   "name": "restapiwithai",
   "version": "1.0.0",
+<<<<<<< HEAD
   "description": "my!!!!!!!!!!",
+=======
+  "description": "my name is Kostya Shilkrot!!!",
+>>>>>>> eddabb78ac139cc82c43c339e926fa35f063519c
   "main": "app.js",
   "type": "module",
-  "option": "none1",
+  "option": "none",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch app.js"

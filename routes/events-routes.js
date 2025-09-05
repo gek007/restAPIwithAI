@@ -1,5 +1,6 @@
 import express from 'express';
 import {tokenAuthentication} from '../util/auth.js'
+import {upload} from '../util/upload.js'
 
 import {
   createEventController,
@@ -33,7 +34,7 @@ router.get('/:id', getEventByIdController)
 
 
 // Create a new event
-router.post('/', tokenAuthentication, createEventController)
+router.post('/', tokenAuthentication, upload.single('image'), createEventController)
 
 // router.post('/', (req, res) => {
 //   console.log('🛣️ POST /events route called');

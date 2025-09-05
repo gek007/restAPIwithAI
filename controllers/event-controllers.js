@@ -211,7 +211,30 @@ const getEventByIdController = async (req, res) => {
         message: 'Internal server error'
       });
     }
-<<<<<<< HEAD
+// Update an event by ID
+const updateEventController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, address, date } = req.body;
+
+    // Validate required fields
+    if (!title || !address || !date) {
+      console.log('❌ Missing required fields');
+      return res.status(400).json({
+        success: false,
+        message: 'Title, address, and date are required'
+      });
+    }
+
+    // Fetch the event to check ownership
+    const event = await getEventById(parseInt(id, 10));
+    if (!event) {
+      console.log('❌ Event not found for update with ID:', id);
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
 
     // Check if the user is the owner of the event
     if (!req.user || !req.user.id || event.user_id !== req.user.id) {
@@ -267,51 +290,22 @@ const deleteEventController = async (req, res) => {
       // This should not happen, but handle just in case
       console.log('❌ Event not found for deletion with ID:', id);
       return res.status(404).json({
-=======
-  };
-  
-  // Delete an event by ID
-  const deleteEventController = async (req, res) => {
-    console.log('🗑️ deleteEventController called with ID:', req.params.id);
-    try {
-      const { id } = req.params;
-  
-      // Fetch the event to check ownership
-      const event = await getEventById(parseInt(id, 10));
-      if (!event) {
-        console.log('❌ Event not found for deletion with ID:', id);
-        return res.status(404).json({
-          success: false,
-          message: 'Event not found'
-        });
-      }
-  
-      // Check if the user is the owner of the event
-      if (!req.user || !req.user.id || event.user_id !== req.user.id) {
-        console.log('❌ User not authorized to delete this event');
-        return res.status(403).json({
-          success: false,
-          message: 'You are not authorized to delete this event'
-        });
-      }
-  
-      const deleted = await deleteEvent(parseInt(id, 10));
-      if (!deleted) {
-        // This should not happen, but handle just in case
-        console.log('❌ Event not found for deletion with ID:', id);
-        return res.status(404).json({
-          success: false,
-          message: 'Event not found'
-        });
-      }
-      res.status(200).json({
-        success: true,
-        message: 'Event deleted successfully'
+        success: false,
+        message: 'Event not found'
       });
-    } catch (error) {
-      console.error('Delete event error:', error);
-      res.status(500).json({
->>>>>>> cea0e418dd9e849b5bcefcbaa911acfef71a427f
+    }
+    res.status(200).json({
+      success: true,
+      message: 'Event deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete event error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
         success: false,
         message: 'Internal server error'
       });

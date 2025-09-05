@@ -38,10 +38,28 @@ db.serialize(() => {
     description TEXT,
     address TEXT NOT NULL,
     date TEXT NOT NULL,
-    createdAt TEXT NOT NULL
+    createdAt TEXT NOT NULL,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id)
   )`, (err) => {
     if (!err) {
       console.log('Created events table');
+    }
+  });
+});
+
+// Registrations table creation
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    event_id INTEGER NOT NULL,
+    UNIQUE(user_id, event_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (event_id) REFERENCES events(id)
+  )`, (err) => {
+    if (!err) {
+      console.log('Created registrations table');
     }
   });
 });

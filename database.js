@@ -48,6 +48,22 @@ db.serialize(() => {
   });
 });
 
+// Registrations table creation
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    event_id INTEGER NOT NULL,
+    UNIQUE(user_id, event_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (event_id) REFERENCES events(id)
+  )`, (err) => {
+    if (!err) {
+      console.log('Created registrations table');
+    }
+  });
+});
+
 
 const db_runAsync = (sql, params = []) => new Promise((resolve, reject) => {
   db.run(sql, params, function (err) {

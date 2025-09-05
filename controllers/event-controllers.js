@@ -200,7 +200,99 @@ const deleteEventController = async (req, res) => {
   }
 };
 
+// Register a user for an event
+import { 
+  createRegistration, 
+  deleteRegistration, 
+  isUserRegisteredForEvent 
+} from '../models/Registration.js';
+
+const registerEventController = async (req, res) => {
+  console.log('📝 registerEventController called for event ID:', req.params.id);
+  try {
+    const { id } = req.params;
+    const userId = req.user && req.user.id ? req.user.id : null;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+
+    // Check if user is already registered in registrations table
+    const alreadyRegistered = await isUserRegisteredForEvent(userId, parseInt(id, 10));
+    if (alreadyRegistered) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already registered for this event'
+      });
+    }
+
+    // Register user for event in registrations table
+    await createRegistration(userId, parseInt(id, 10));
+
+    res.status(200).json({
+      success: true,
+      message: 'User registered for event successfully'
+    });
+  } catch (error) {
+    console.error('Register event error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+const unregisterEventController = async (req, res) => {
+  console.log('📝 unregisterEventController called for event ID:', req.params.id);
+  try {
+    const { id } = req.params;
+    const userId = req.user && req.user.id ? req.user.id : null;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+
+    // Check if user is registered for the event
+    const isRegistered = await isUserRegisteredForEvent(userId, parseInt(id, 10));
+    if (!isRegistered) {
+      return res.status(400).json({
+        success: false,
+        message: 'User is not registered for this event'
+      });
+    }
+
+    // Remove the registration from the registrations table
+    const deleted = await deleteRegistration(userId, parseInt(id, 10));
+    if (!deleted) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to unregister user from event'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'User unregistered from event successfully'
+    });
+  } catch (error) {
+    console.error('Unregister event error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+
 export {
+  registerEventController,
+  unregisterEventController,
   createEventController,
   getAllEventsController,
   getEventByIdController,

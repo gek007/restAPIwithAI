@@ -8,8 +8,15 @@ import { db_runAsync, db_getAsync, db_allAsync } from '../database.js';
 const createEvent = async (eventData) => {
   const createdAt = new Date().toISOString();
   const result = await db_runAsync(
-    `INSERT INTO events (title, description, address, date, createdAt) VALUES (?, ?, ?, ?, ?)`,
-    [eventData.title, eventData.description, eventData.address, eventData.date, createdAt]
+    `INSERT INTO events (title, description, address, date, createdAt, user_id) VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      eventData.title,
+      eventData.description,
+      eventData.address,
+      eventData.date,
+      createdAt,
+      eventData.user_id || null
+    ]
   );
   return await getEventById(result.lastID);
 };
@@ -55,6 +62,58 @@ const getEventById = async (id) => {
 const getAllEvents = async () => {
   const rows = await db_allAsync(`SELECT * FROM events ORDER BY date ASC`);
   return rows;
+};
+
+/**
+ * Checks if a user is registered for an event.
+ * @param {number} userId - The user ID.
+ * @param {number} eventId - The event ID.
+ * @returns {Promise<boolean>} - True if registered, false otherwise.
+ */
+const isUserRegisteredForEvent = async (userId, eventId) => {
+  const row = await db_getAsync(
+    `SELECT 1 FROM registrations WHERE user_id = ? AND event_id = ?`,
+    [userId, eventId]
+  );
+  return !!row;
+};
+
+/**
+ * Creates a registration for a user to an event.
+ * @param {number} userId - The user ID.
+ * @param {number} eventId - The event ID.
+ * @returns {Promise<object>} - The registration object.
+ */
+const createRegistration = async (userId, eventId) => {
+  const result = await db_runAsync(
+    `INSERT INTO registrations (user_id, event_id) VALUES (?, ?)`,
+    [userId, eventId]
+  );
+  return {
+    id: result.lastID,
+    user_id: userId,
+    event_id: eventId
+  };
+};
+
+/**
+ * Deletes a registration for a user from an event.
+ * @param {number} userId - The user ID.
+ * @param {number} eventId - The event ID.
+ * @returns {Promise<boolean>} - True if deleted, false otherwise.
+ */
+const deleteRegistration = async (userId, eventId) => {
+  const result = await db_runAsync(
+    `DELETE FROM registrations WHERE user_id = ? AND event_id = ?`,
+    [userId, eventId]
+  );
+  return result.changes > 0;
+};
+
+export {
+  isUserRegisteredForEvent,
+  createRegistration,
+  deleteRegistration
 };
 
 export {

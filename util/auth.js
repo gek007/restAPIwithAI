@@ -40,7 +40,7 @@ export function verifyJWT(token) {
  * @param {object} res - The Express response object.
  * @param {function} next - The next middleware function.
  */
-export function extractTokenFromHeader(req, res, next) {
+export function tokenAuthentication(req, res, next) {
   let token = null;
   if (
     req &&

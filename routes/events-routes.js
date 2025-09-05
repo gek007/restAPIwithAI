@@ -1,5 +1,5 @@
 import express from 'express';
-import {extractTokenFromHeader} from '../util/auth.js'
+import {tokenAuthentication} from '../util/auth.js'
 
 import {
   createEventController,
@@ -30,7 +30,7 @@ router.get('/:id', getEventByIdController)
 
 
 // Create a new event
-router.post('/', extractTokenFromHeader, createEventController)
+router.post('/', tokenAuthentication, createEventController)
 
 // router.post('/', (req, res) => {
 //   console.log('🛣️ POST /events route called');
@@ -39,7 +39,7 @@ router.post('/', extractTokenFromHeader, createEventController)
 
 
 // Edit (update) an event by id
-router.put('/:id', extractTokenFromHeader, updateEventController)
+router.put('/:id', tokenAuthentication, updateEventController)
 
 // router.put('/:id', (req, res) => {
 //   console.log('🛣️ PUT /events/:id route called with ID:', req.params.id);
@@ -47,7 +47,7 @@ router.put('/:id', extractTokenFromHeader, updateEventController)
 // });
 
 // Delete an event by id
-router.delete('/:id', extractTokenFromHeader, deleteEventController)
+router.delete('/:id', tokenAuthentication, deleteEventController)
 
 // router.delete('/:id', (req, res) => {
 //   console.log('🛣️ DELETE /events/:id route called with ID:', req.params.id);

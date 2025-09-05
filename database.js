@@ -38,7 +38,9 @@ db.serialize(() => {
     description TEXT,
     address TEXT NOT NULL,
     date TEXT NOT NULL,
-    createdAt TEXT NOT NULL
+    createdAt TEXT NOT NULL,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id)
   )`, (err) => {
     if (!err) {
       console.log('Created events table');

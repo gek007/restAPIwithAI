@@ -1,15 +1,16 @@
 {
    "name": "gek1",
    "email": "gek1@example.com",
-   "password": "gek1"
+   "password": "11111111"
 }
 
 
 
+
 {
-    "title": "aaaa",
-    "description": "bbb",
-    "address": "cccc",
+    "title": "1111",
+    "description": "1111",
+    "address": "1111",
     "date": "2025-07-05T17:00:00"
 }
 

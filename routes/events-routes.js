@@ -6,8 +6,11 @@ import {
   getAllEventsController,
   getEventByIdController,
   updateEventController,
-  deleteEventController
+  deleteEventController,
+  registerEventController,
+  unregisterEventController
 } from '../controllers/event-controllers.js';
+
 
 const router = express.Router();
 
@@ -53,5 +56,10 @@ router.delete('/:id', tokenAuthentication, deleteEventController)
 //   console.log('🛣️ DELETE /events/:id route called with ID:', req.params.id);
 //   deleteEventController(req, res);
 // });
+
+
+router.post('/:id/register', tokenAuthentication, registerEventController)
+router.post('/:id/unregister', tokenAuthentication, unregisterEventController)
+
 
 export default router;

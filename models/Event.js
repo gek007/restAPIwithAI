@@ -8,8 +8,15 @@ import { db_runAsync, db_getAsync, db_allAsync } from '../database.js';
 const createEvent = async (eventData) => {
   const createdAt = new Date().toISOString();
   const result = await db_runAsync(
-    `INSERT INTO events (title, description, address, date, createdAt) VALUES (?, ?, ?, ?, ?)`,
-    [eventData.title, eventData.description, eventData.address, eventData.date, createdAt]
+    `INSERT INTO events (title, description, address, date, createdAt, user_id) VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      eventData.title,
+      eventData.description,
+      eventData.address,
+      eventData.date,
+      createdAt,
+      eventData.user_id || null
+    ]
   );
   return await getEventById(result.lastID);
 };
@@ -56,6 +63,7 @@ const getAllEvents = async () => {
   const rows = await db_allAsync(`SELECT * FROM events ORDER BY date ASC`);
   return rows;
 };
+
 
 export {
   createEvent,

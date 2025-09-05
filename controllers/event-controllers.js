@@ -31,7 +31,8 @@ const createEventController = async (req, res) => {
       });
     }
 
-    const newEvent = await createEvent({ title, description, address, date });
+    const user_id = req.user && req.user.id ? req.user.id : null;
+    const newEvent = await createEvent({ title, description, address, date, user_id });
 
     console.log('✅ Event created successfully:', newEvent.id);
     res.status(201).json({
@@ -118,14 +119,26 @@ const updateEventController = async (req, res) => {
       });
     }
 
-    const updatedEvent = await updateEvent(parseInt(id, 10), { title, description, address, date });
-    if (!updatedEvent) {
+    // Fetch the event to check ownership
+    const event = await getEventById(parseInt(id, 10));
+    if (!event) {
       console.log('❌ Event not found for update with ID:', id);
       return res.status(404).json({
         success: false,
         message: 'Event not found'
       });
     }
+
+    // Check if the user is the owner of the event
+    if (!req.user || !req.user.id || event.user_id !== req.user.id) {
+      console.log('❌ User not authorized to update this event');
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to update this event'
+      });
+    }
+
+    const updatedEvent = await updateEvent(parseInt(id, 10), { title, description, address, date });
     res.status(200).json({
       success: true,
       message: 'Event updated successfully',
@@ -145,8 +158,29 @@ const deleteEventController = async (req, res) => {
   console.log('🗑️ deleteEventController called with ID:', req.params.id);
   try {
     const { id } = req.params;
+
+    // Fetch the event to check ownership
+    const event = await getEventById(parseInt(id, 10));
+    if (!event) {
+      console.log('❌ Event not found for deletion with ID:', id);
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    // Check if the user is the owner of the event
+    if (!req.user || !req.user.id || event.user_id !== req.user.id) {
+      console.log('❌ User not authorized to delete this event');
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to delete this event'
+      });
+    }
+
     const deleted = await deleteEvent(parseInt(id, 10));
     if (!deleted) {
+      // This should not happen, but handle just in case
       console.log('❌ Event not found for deletion with ID:', id);
       return res.status(404).json({
         success: false,
